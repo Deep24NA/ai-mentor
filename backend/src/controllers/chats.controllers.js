@@ -2,13 +2,25 @@ import { getMentorResponse } from "../services/ai.service.js";
 
 export const chatWithMentor = async (req, res) => {
   try {
-    const { message } = req.body;
+    const {
+      message,
+      streak,
+      messagesToday,
+      completedTodayCount,
+      totalHabits,
+    } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const reply = await getMentorResponse(message);
+    const reply = await getMentorResponse({
+      message,
+      streak,
+      messagesToday,
+      completedTodayCount,
+      totalHabits,
+    });
 
     res.json({ reply });
   } catch (error) {
