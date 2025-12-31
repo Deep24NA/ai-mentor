@@ -1,22 +1,24 @@
 import { useContext, createContext, useState, useEffect } from "react";
+import {
+    fetchHabits,
+    createHabit,
+    toggleHabit as toggleHabitApi
+} from "../services/habit.api"
 
 const HabitContext = createContext();
 
 export const HabitProvider = ({ children }) => {
     const today = new Date().toDateString();
-    const [habits, setHabits] = useState(() => {
-        try {
-            const saved = localStorage.getItem("habits");
-            return saved ? JSON.parse(saved) : [];
-        } catch {
-            return [];
-        }
-    });
-
-
+    const [habits, setHabits] = useState([]);
     const [lastHabitDate, setLastHabitDate] = useState(() => {
         return localStorage.getItem("lastHabitDate")
-    })
+    });
+
+    useEffect(() => {
+        fetchHabits()
+            .then(setHabits)
+            .catch(console.error);
+    }, [])
 
     useEffect(() => {
         if (lastHabitDate !== today) {
@@ -32,31 +34,26 @@ export const HabitProvider = ({ children }) => {
 
 
     useEffect(() => {
-        localStorage.setItem("habits", JSON.stringify(habits))
         localStorage.setItem("lastHabitDate", lastHabitDate)
-    }, [habits, lastHabitDate]);
+    }, [lastHabitDate])
 
-    const addHabit = (title) => {
+
+    const addHabit = async (title) => {
         if (!title.trim()) return;
-
-        setHabits((prev) => [
-            ...prev,
-            {
-                id: crypto.randomUUID(),
-                title,
-                completedToday: false,
-            },
-        ]);
+        const newHabit = await createHabit(title);
+        setHabits((prev) => [...prev, newHabit]);
     };
 
 
-    const toggleHabit = (id) => {
+    const toggleHabit = async (id) => {
+        const updatedHabit = await toggleHabitApi(id);
         setHabits((prev) =>
             prev.map((habit) =>
-                habit.id === id
-                    ? { ...habit, completedToday: !habit.completedToday } :
-                    habit))
+                habit._id === id ? updatedHabit : habit
+            )
+        );
     };
+
 
     const completedTodayCount = habits.filter((habit) => habit.completedToday).length;
 

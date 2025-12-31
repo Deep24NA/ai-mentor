@@ -2,20 +2,20 @@ import React from 'react'
 import { useProgress } from "../context/ProgressContext"
 
 export default function ProgressCard() {
-    const {streak , messagesToday} = useProgress()
+    const {streak , dailyReflection} = useProgress()
   return (
-    <div className="bg-white rounded shadow p-4">
-      <div className="flex justify-between">
-        <div>
-          <p className="text-sm text-gray-500">Streak</p>
-          <p className="text-2xl font-bold">🔥 {streak}</p>
-        </div>
+      <div className="p-4 bg-white rounded shadow space-y-2">
+      <div className="text-sm">🔥 Streak: {streak} days</div>
 
-        <div>
-          <p className="text-sm text-gray-500">Today</p>
-          <p className="text-2xl font-bold">💬 {messagesToday}</p>
-        </div>
-      </div>
+      {dailyReflection ? (
+        <p className="italic text-gray-700">
+          {dailyReflection}
+        </p>
+      ) : (
+        <p className="italic text-gray-400">
+          Reflection will appear after today’s activity.
+        </p>
+      )}
     </div>
   )
 }

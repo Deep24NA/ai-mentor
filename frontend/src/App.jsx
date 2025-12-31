@@ -10,17 +10,17 @@ import { HabitProvider } from "./context/HabitContext";
 export default function App() {
   return (
     <BrowserRouter>
-      <ProgressProvider>
-        <HabitProvider>
+      <HabitProvider>
+        <ProgressProvider>
           <Routes>
             <Route path="/" element={<DashBoard />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/habits" element={<Habit/>}/>
+            <Route path="/habits" element={<Habit />} />
           </Routes>
-        </HabitProvider>
-      </ProgressProvider>
+        </ProgressProvider>
+      </HabitProvider>
     </BrowserRouter>
   );
 }

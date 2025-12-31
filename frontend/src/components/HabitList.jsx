@@ -16,11 +16,11 @@ export default function HabitList() {
 
             <ul className="space-y-2">
                 {habits.map((habit) => (
-                    <li key={habit.id} className="flex items-center gap-2">
+                    <li key={habit._id} className="flex items-center gap-2">
                         <input
                             type="checkbox"
                             checked={habit.completedToday}
-                            onChange={() => toggleHabit(habit.id)}
+                            onChange={() => toggleHabit(habit._id)}
                         />
                         <span
                             className={

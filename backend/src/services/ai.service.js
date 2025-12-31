@@ -24,9 +24,28 @@ export const getMentorResponse = async ({
       model: "tinyllama",
       prompt,
       stream: false,
+      options: {
+        num_predict: 80,      // limits length
+        stop: ["\n\n", "User:"], // stops roleplay
+      },
     }),
+
   });
 
+const cleanResponse = (text) => {
+  return text
+    .replace(/^AI Mentor[:,]?\s*/i, "")
+    .replace(/^Mentor[:,]?\s*/i, "")
+    .replace(/^Sure[:,]?\s*/i, "")
+    .replace(/\?.*$/g, "")   // 👈 remove questions
+    .replace(/\s*(Have a great day|All the best).*$/i, "")
+    .trim();
+};
+
+
+
   const data = await response.json();
-  return data.response;
+  return cleanResponse(data.response);
+
+
 };
