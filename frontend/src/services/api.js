@@ -4,7 +4,13 @@ export const sendMessage = async (payload) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      message: payload.message,
+      streak: payload.streak,
+      messagesToday: payload.messagesToday,         
+      completedTodayCount: payload.completedTodayCount,
+      totalHabits: payload.totalHabits,             
+    }),
   });
 
   const data = await res.json();

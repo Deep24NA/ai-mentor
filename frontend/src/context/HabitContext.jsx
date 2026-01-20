@@ -1,74 +1,61 @@
-import { useContext, createContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
-    fetchHabits,
-    createHabit,
-    toggleHabit as toggleHabitApi
-} from "../services/habit.api"
+  fetchHabits,
+  createHabit,
+  toggleHabit as toggleHabitApi,
+} from "../services/habit.api";
 
 const HabitContext = createContext();
 
 export const HabitProvider = ({ children }) => {
-    const today = new Date().toDateString();
-    const [habits, setHabits] = useState([]);
-    const [lastHabitDate, setLastHabitDate] = useState(() => {
-        return localStorage.getItem("lastHabitDate")
-    });
+  const today = new Date().toDateString();
 
-    useEffect(() => {
-        fetchHabits()
-            .then(setHabits)
-            .catch(console.error);
-    }, [])
+  const [habits, setHabits] = useState([]);
 
-    useEffect(() => {
-        if (lastHabitDate !== today) {
-            setHabits((prev) =>
-                prev.map((habit) => ({
-                    ...habit,
-                    completedToday: false,
-                }))
-            );
-            setLastHabitDate(today)
-        }
-    }, [lastHabitDate, today])
+  // Fetch habits from backend once
+  useEffect(() => {
+    fetchHabits()
+      .then(setHabits)
+      .catch(console.error);
+  }, []);
 
+  // Add habit
+  const addHabit = async (title) => {
+    if (!title.trim()) return;
+    const newHabit = await createHabit(title);
+    setHabits((prev) => [...prev, newHabit]);
+  };
 
-    useEffect(() => {
-        localStorage.setItem("lastHabitDate", lastHabitDate)
-    }, [lastHabitDate])
+  // Toggle habit (backend is source of truth)
+  const toggleHabit = async (id) => {
+    const updatedHabit = await toggleHabitApi(id);
+    setHabits((prev) =>
+      prev.map((habit) =>
+        habit._id === id ? updatedHabit : habit
+      )
+    );
+  };
 
+  // ✅ TODAY LOGIC (DATE-BASED, CORRECT)
+  const completedTodayCount = habits.filter(
+    (habit) => habit.completedDates?.includes(today)
+  ).length;
 
-    const addHabit = async (title) => {
-        if (!title.trim()) return;
-        const newHabit = await createHabit(title);
-        setHabits((prev) => [...prev, newHabit]);
-    };
+  const totalTodayHabits = habits.length;
 
+  return (
+    <HabitContext.Provider
+      value={{
+        habits,
+        addHabit,
+        toggleHabit,
+        completedTodayCount,
+        totalTodayHabits,
+      }}
+    >
+      {children}
+    </HabitContext.Provider>
+  );
+};
 
-    const toggleHabit = async (id) => {
-        const updatedHabit = await toggleHabitApi(id);
-        setHabits((prev) =>
-            prev.map((habit) =>
-                habit._id === id ? updatedHabit : habit
-            )
-        );
-    };
-
-
-    const completedTodayCount = habits.filter((habit) => habit.completedToday).length;
-
-    return (
-        <HabitContext.Provider value={{
-            habits,
-            addHabit,
-            toggleHabit,
-            completedTodayCount
-        }}>
-            {children}
-        </HabitContext.Provider>
-    )
-
-}
-
-
-export const useHabits = () => useContext(HabitContext)
+export const useHabits = () => useContext(HabitContext);

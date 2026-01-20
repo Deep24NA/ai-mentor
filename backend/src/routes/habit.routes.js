@@ -12,7 +12,10 @@ router.get("/" , async (req , res) =>{
 
 // create habit
 router.post("/" , async (req , res) =>{
-    const habit = await Habit.create({title: req.body.title});
+    const habit = await Habit.create({
+        title: req.body.title,
+        frequency: "daily"
+      });
     res.json(habit);
 })
 

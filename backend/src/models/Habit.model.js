@@ -21,6 +21,11 @@ const habitSchema = new mongoose.Schema(
         completedDates: {
             type: [String],
             default: []
+        },
+        frequency: {
+            type: String,
+            enum: ["daily"],
+            default: "daily", 
         }
     },
     {

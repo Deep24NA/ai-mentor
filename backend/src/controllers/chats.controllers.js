@@ -21,7 +21,7 @@ export const chatWithMentor = async (req, res) => {
       completedTodayCount,
       totalHabits,
     });
-
+    // console.log("AI MENTOR", reply)
     res.json({ reply });
   } catch (error) {
     console.error("AI ERROR:", error);

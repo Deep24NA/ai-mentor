@@ -6,8 +6,10 @@ const ProgressContext = createContext();
 
 export const ProgressProvider = ({ children }) => {
   const today = new Date().toDateString();
-  const { completedTodayCount, habits } = useHabits();
-  const totalHabits = habits.length;
+  const { completedTodayCount, totalHabits } = useHabits();
+
+  // console.log(totalHabits);
+  // console.log(completedTodayCount)
 
   const [streak, setStreak] = useState(() => {
     const saved = localStorage.getItem("streak");
@@ -36,26 +38,41 @@ export const ProgressProvider = ({ children }) => {
     return localStorage.getItem("lastReflectionDate");
   });
 
-  const canGenerateReflection = lastReflectionDate !== today;
+  // const canGenerateReflection = lastReflectionDate !== today;
 
-  const genrateDailyReflection = async () => {
+  const generateDailyReflection = async () => {
   if (lastReflectionDate === today) return;
+  if(completedTodayCount === 0) return;
 
-  const text = await sendMessage({
-    message: "daily reflection",
-    streak,
-    messagesToday: 0,
-    completedTodayCount,
-    totalHabits,
-  });
+  let text = "";
 
-  if (typeof text !== "string") return;
-  if (!text.trim()) return;
+  if(completedTodayCount === totalHabits) {
+    text = "You showed up fully today — consistency is forming.";
+  } else{
+    text = "Progress matters more than perfection; keep going.";
+  }
+
+
+
+  // const text = await sendMessage({
+  //   message: "daily reflection",
+  //   streak,
+  //   messagesToday: 0,
+  //   completedTodayCount,
+  //   totalHabits,
+  // });
+
+  // if (typeof text !== "string") return;
+  // if (!text.trim()) return;
 
   setDailyReflection(text);
   setLastReflectionDate(today);
 };
 
+
+  useEffect(() => {
+    generateDailyReflection()
+  },[completedTodayCount])
 
 
   // ✅ streak evaluation
@@ -107,7 +124,7 @@ export const ProgressProvider = ({ children }) => {
         streak,
         messagesToday,
         dailyReflection,
-        genrateDailyReflection,
+        generateDailyReflection,
       }}
     >
       {children}

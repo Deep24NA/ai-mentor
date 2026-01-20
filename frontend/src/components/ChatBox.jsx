@@ -37,8 +37,13 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="flex flex-col h-screen p-4 bg-gray-100">
-      <div className="flex-1 overflow-y-auto mb-4">
+    <div className="flex flex-col min-h-screen p-4 bg-gray-100">
+      <div
+        className={`mb-4 flex flex-col gap-2 ${messages.length > 6
+            ? "max-h-[70vh] overflow-y-auto"
+            : ""
+          }`}
+      >
         {messages.map((msg, idx) => (
           <Message key={idx} text={msg.text} sender={msg.sender} />
         ))}
@@ -47,7 +52,7 @@ export default function ChatBox() {
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-auto">
         <input
           className="flex-1 p-2 rounded border"
           value={input}
@@ -63,4 +68,5 @@ export default function ChatBox() {
       </div>
     </div>
   );
+
 }
