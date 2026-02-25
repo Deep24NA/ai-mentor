@@ -7,7 +7,7 @@ export const protect = async (req, res, next) => {
 
     if (req.headers.authorization?.split("Bearer")) {
       token = req.headers.authorization.split(" ")[1];
-      console.log("AUTH HEADER:", req.headers.authorization);
+      // console.log("AUTH HEADER:", req.headers.authorization);
     }
 
     if (!token) {
@@ -15,11 +15,11 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("DECODED:", decoded);
+    // console.log("DECODED:", decoded);
     
 
     req.user = await User.findById(decoded.id).select("-password");
-    console.log("USER FOUND:", req.user);
+    // console.log("USER FOUND:", req.user);
 
     next();
   } catch (error) {

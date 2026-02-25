@@ -68,3 +68,39 @@ export const chatWithMentor = async (req, res) => {
     res.status(500).json({ error: "AI Mentor failed to respond" });
   }
 };
+
+
+// get the last 20 chats to load in forntend
+
+export const getChatHistory = async (req , res) =>{
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const skip = (page - 1) * limit;
+
+    const totalChats = await Chat.countDocuments({
+      userId : req.user._id,
+    });
+
+
+    const chats = await Chat.find({userId : req.user._id})
+    .sort({createdAt : -1})
+    .skip(skip)
+    .limit(limit);
+
+    // console.log("Chats are : ", chats);
+
+    res.status(200).json({
+      success: true,
+      page,
+      totalPages : Math.ceil(totalChats/ limit),
+      totalChats,
+      count : chats.length,
+      data : chats,
+    });
+  } catch (error) {
+    console.error("HISTORY ERROR" , error);
+    res.status(500).json({error : "Failed to fetch chat history"});
+  }
+}
