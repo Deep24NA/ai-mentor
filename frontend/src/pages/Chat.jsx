@@ -1,10 +1,9 @@
-import ChatBox from "../components/ChatBox";
-import AppLayout from "../layout/AppLayout";
+import ChatBox from "../components/chat/ChatBox";
 
 export default function Chat() {
   return(
-    <AppLayout>
+    <div className="h-full flex flex-col">
       <ChatBox/>
-    </AppLayout>
+    </div>
   );
 }

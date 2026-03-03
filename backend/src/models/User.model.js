@@ -15,6 +15,18 @@ const userSchema = new  mongoose.Schema(
             type: String,
             required: true,
         },
+        xp: {
+            type: Number,
+            default: 0,
+        },
+        level: {
+            type: Number,
+            default: 1,
+        },
+        longestStreak: {
+            type: Number,
+            default: 0,
+        },
     },
 
     {

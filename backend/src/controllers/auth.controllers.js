@@ -30,15 +30,20 @@ export const registerUser = async (req , res) =>{
         name,
         email,
         password : hashedPassword,
+        xp: 0,
+        level: 1,
+        longestStreak: 0
     });
 
     res.status(201).json({
         _id: user._id,
         name: user.name,
         email : user.email,
+        xp: user.xp,
+        level: user.level,
+        longestStreak: user.longestStreak,
         token : generateToken(user._id),
     });
-    console.log("BODY:", req.body);
 };
 
 // registerUser();
@@ -63,6 +68,22 @@ export const loginUser = async (req , res) =>{
         _id : user._id,
         name : user.name,
         email : user.email,
+        xp: user.xp,
+        level: user.level,
+        longestStreak: user.longestStreak,
         token : generateToken(user._id),
     })
+}
+
+// Get Current User Profile (me)
+export const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
 }

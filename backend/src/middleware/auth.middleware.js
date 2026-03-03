@@ -18,8 +18,13 @@ export const protect = async (req, res, next) => {
     // console.log("DECODED:", decoded);
     
 
-    req.user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(decoded.id).select("-password");
     // console.log("USER FOUND:", req.user);
+    if(!user){
+      res.status(401).json({error : "User not found"});
+    }
+
+    req.user = user;
 
     next();
   } catch (error) {

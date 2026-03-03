@@ -1,10 +1,11 @@
 import express from 'express';
 import { chatWithMentor , getChatHistory } from '../controllers/chats.controllers.js';
 import { protect } from '../middleware/auth.middleware.js';
+import { chatRateLimiter } from '../middleware/rateLimiter.middleware.js';
 
 const router = express.Router()
 
-router.post('/' , protect, chatWithMentor);
+router.post('/' , protect, chatRateLimiter, chatWithMentor);
 router.get('/history' , protect , getChatHistory);
 
 export default router;

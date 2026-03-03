@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 import {
   fetchHabits,
   createHabit,
@@ -9,15 +10,22 @@ const HabitContext = createContext();
 
 export const HabitProvider = ({ children }) => {
   const today = new Date().toDateString();
-
+  const { user, setUser } = useAuth(); // Connect to gamification global state
   const [habits, setHabits] = useState([]);
 
-  // Fetch habits from backend once
+  // Fetch habits from backend once authenticated
   useEffect(() => {
-    fetchHabits()
-      .then(setHabits)
-      .catch(console.error);
-  }, []);
+    if (user) {
+        fetchHabits()
+          .then(data => {
+              if (Array.isArray(data)) setHabits(data);
+              else setHabits([]);
+          })
+          .catch(console.error);
+    } else {
+        setHabits([]); // Clear habits on logout
+    }
+  }, [user]);
 
   // Add habit
   const addHabit = async (title) => {
@@ -28,12 +36,32 @@ export const HabitProvider = ({ children }) => {
 
   // Toggle habit (backend is source of truth)
   const toggleHabit = async (id) => {
-    const updatedHabit = await toggleHabitApi(id);
-    setHabits((prev) =>
-      prev.map((habit) =>
-        habit._id === id ? updatedHabit : habit
-      )
-    );
+    const data = await toggleHabitApi(id);
+    
+    // Check if the backend returned our new gamification payload format
+    if (data.habit) {
+        setHabits((prev) =>
+          prev.map((habit) =>
+            habit._id === id ? data.habit : habit
+          )
+        );
+
+        // Update global Auth User state with new XP and Level!
+        if(setUser && data.newTotalXp !== null) {
+            setUser(prevUser => ({
+                ...prevUser,
+                xp: data.newTotalXp,
+                level: data.newLevel
+            }));
+        }
+    } else {
+        // Fallback for older API format if not updated
+        setHabits((prev) =>
+          prev.map((habit) =>
+            habit._id === id ? data : habit
+          )
+        );
+    }
   };
 
   // ✅ TODAY LOGIC (DATE-BASED, CORRECT)
