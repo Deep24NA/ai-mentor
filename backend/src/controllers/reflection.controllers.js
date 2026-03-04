@@ -8,15 +8,15 @@ export const generateReflection = async (req, res) => {
     const today = new Date().toDateString();
 
     // Check if already Generated today
-    const exisiting = await Reflection.findOne({
+    const existing = await Reflection.findOne({
       userId: req.user._id,
       date: today,
     });
 
-    if (exisiting) {
+    if (existing) {
       return res.status(200).json({
         success: true,
-        data: exisiting,
+        data: existing,
       });
     }
 
@@ -40,8 +40,7 @@ export const generateReflection = async (req, res) => {
 
     if (
       !aiReflection ||
-      typeof aiReflection !== "string" ||
-      !aiReflection.split()
+      typeof aiReflection !== "string"
     ) {
       console.error("Invalid Ai reflection", aiReflection);
       return res.status(500).json({
@@ -66,10 +65,8 @@ export const generateReflection = async (req, res) => {
         user.xp += 20;
 
         // Check if level up (Every 100 XP = 1 Level)
-        const requiredXp = user.level * 100;
-        if(user.xp >= requiredXp) {
+        while (user.xp >= user.level * 100) {
             user.level += 1;
-            // Optionally, reset XP or keep accumulating
         }
 
         if(streak > user.longestStreak) {
@@ -122,7 +119,7 @@ export const getReflectionHistory = async (req, res) => {
       data: reflection,
     });
   } catch (error) {
-    console.error("REFLECTION HISTORY ERRRO ", error);
+    console.error("REFLECTION HISTORY ERROR ", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch reflection history",
@@ -141,7 +138,7 @@ export const getWeeklySummary = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(7);
 
-    if (!reflections) {
+    if (!reflections || reflections.length === 0) {
       return res.status(400).json({
         success: false,
         error: "Not enough reflection data for weekly summary",
@@ -162,22 +159,36 @@ export const getWeeklySummary = async (req, res) => {
 const prompt = `
 You are an analytical AI mentor evaluating the weekly progress of ${user ? user.name : 'the user'}.
 
-Generate a COMPLETE weekly performance review for ${user ? user.name : 'them'}.
+Based on their reflections, generate a structured JSON report. Do NOT output markdown fencing. Output ONLY valid JSON matching this exact structure:
 
-Rules:
-- Maximum 350 words.
-- 4 sections only.
-- Each section 2–3 sentences.
-- Do NOT exceed the word limit.
-- Finish completely before ending.
-
-Sections:
-1. Overall Consistency (2-3 sentences)
-2. Strengths (2-3 sentences)
-3. Weaknesses (2-3 sentences)
-4. Action Plan (2-3 sentences)
-
-IMPORTANT: Ensure your response is fully complete and not cut off. Do not leave sentences or sections unfinished.
+{
+  "scores": {
+    "overallScore": <number 0-100>,
+    "productivity": <number 0-100>,
+    "stability": <number 0-100>,
+    "learning": <number 0-100>
+  },
+  "highlights": {
+    "biggestWin": {
+      "title": "<short sentence describing their best ongoing habit/win>",
+      "description": "<one sentence elaborating on the win>"
+    },
+    "majorStruggle": {
+      "title": "<short sentence describing their main friction point>",
+      "description": "<one sentence elaborating on the struggle>"
+    }
+  },
+  "actionPlan": [
+    {
+      "title": "<short action item 1>",
+      "description": "<detailed sentence explaining how to achieve it>"
+    },
+    {
+      "title": "<short action item 2>",
+      "description": "<detailed sentence explaining how to achieve it>"
+    }
+  ]
+}
 
 Data:
 ${reflectionText}
@@ -195,15 +206,105 @@ ${reflectionText}
       });
     }
 
-    res.status(200).json({
-      success: true,
-      summary: weeklySummary.trim(),
-    });
+    try {
+      // Clean potential markdown fencing from Gemini response
+      let cleanJson = weeklySummary.trim();
+      if (cleanJson.startsWith('\`\`\`json')) {
+         cleanJson = cleanJson.replace(/^\`\`\`json/,"").replace(/\`\`\`$/,"");
+      }
+      const parsedSummary = JSON.parse(cleanJson);
+      res.status(200).json({
+        success: true,
+        summary: parsedSummary,
+      });
+    } catch (parseError) {
+      console.error("JSON Parse Error for Weekly Summary:", weeklySummary);
+      res.status(500).json({
+         success: false,
+         error: "AI returned invalid JSON format."
+      });
+    }
   } catch (error) {
     console.error("WEEEKLY SUMMARY ERROR ", error);
     res.status(500).json({
       success: false,
       error: "Failed to generate weekly summary",
     });
+  }
+};
+
+// get memory visualizer insights
+export const getMemoryInsights = async (req, res) => {
+  try {
+    const reflections = await Reflection.find({ userId: req.user._id }).sort({ createdAt: -1 }).limit(14);
+    if (!reflections || reflections.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Not enough reflection data to visualize",
+      });
+    }
+
+    const reflectionText = reflections.map(r => `Date: ${r.date} | Reflection: ${r.aiReflection}`).join("\n");
+
+    const prompt = `
+You are an advanced AI data analyzer. I am providing you with up to 14 days of a user's daily reflections.
+Analyze their sentiment, emotions, and frequently mentioned topics.
+Return ONLY valid JSON matching this exact structure (No markdown code blocks, no other text):
+
+{
+  "emotionData": [
+    { "day": "Mon", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Tue", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Wed", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Thu", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Fri", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Sat", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> },
+    { "day": "Sun", "focus": <0-100>, "calm": <0-100>, "stress": <0-100> }
+  ],
+  "topicsData": [
+    { "name": "<Topic 1>", "count": <integer 1-20> },
+    { "name": "<Topic 2>", "count": <integer> },
+    { "name": "<Topic 3>", "count": <integer> },
+    { "name": "<Topic 4>", "count": <integer> },
+    { "name": "<Topic 5>", "count": <integer> }
+  ],
+  "improvements": [
+    "<insightful sentence 1>",
+    "<insightful sentence 2>",
+    "<insightful sentence 3>"
+  ],
+  "struggles": [
+    "<insightful sentence 1>",
+    "<insightful sentence 2>"
+  ]
+}
+
+Extrapolate the 7 "emotionData" days to represent a general recent 7-day trend based on the overall sentiment. 
+The "topicsData" counts should reflect how often general themes (e.g., Productivity, Anxiety, Focus, Fitness) appeared or were implied.
+
+Data:
+${reflectionText}
+`;
+
+    const rawResponse = await getMentorResponse({
+      message: prompt,
+      userRawPrompt: true,
+    });
+
+    try {
+      let cleanJson = rawResponse.trim();
+      if (cleanJson.startsWith('\`\`\`json')) {
+         cleanJson = cleanJson.replace(/^\`\`\`json/,"").replace(/\`\`\`$/,"");
+      }
+      const parsedInsights = JSON.parse(cleanJson);
+      res.status(200).json({ success: true, data: parsedInsights });
+    } catch (parseError) {
+      console.error("JSON Parse Error for Memory Insights:", rawResponse);
+      res.status(500).json({ success: false, error: "AI returned invalid JSON format."});
+    }
+
+  } catch (error) {
+    console.error("MEMORY INSIGHTS ERROR ", error);
+    res.status(500).json({ success: false, error: "Failed to generate memory insights" });
   }
 };

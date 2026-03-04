@@ -29,47 +29,57 @@ export const HabitProvider = ({ children }) => {
 
   // Add habit
   const addHabit = async (title) => {
-    if (!title.trim()) return;
-    const newHabit = await createHabit(title);
-    setHabits((prev) => [...prev, newHabit]);
+    if (!title || !title.trim()) return;
+    try {
+        const newHabit = await createHabit(title);
+        if (newHabit && newHabit._id) {
+            setHabits((prev) => [...prev, newHabit]);
+        }
+    } catch (e) {
+        console.error("Failed to add habit", e);
+    }
   };
 
   // Toggle habit (backend is source of truth)
   const toggleHabit = async (id) => {
-    const data = await toggleHabitApi(id);
-    
-    // Check if the backend returned our new gamification payload format
-    if (data.habit) {
-        setHabits((prev) =>
-          prev.map((habit) =>
-            habit._id === id ? data.habit : habit
-          )
-        );
+    try {
+        const data = await toggleHabitApi(id);
+        
+        // Check if the backend returned our new gamification payload format
+        if (data && data.habit && data.habit._id) {
+            setHabits((prev) =>
+              prev.map((habit) =>
+                habit._id === id ? data.habit : habit
+              )
+            );
 
-        // Update global Auth User state with new XP and Level!
-        if(setUser && data.newTotalXp !== null) {
-            setUser(prevUser => ({
-                ...prevUser,
-                xp: data.newTotalXp,
-                level: data.newLevel
-            }));
+            // Update global Auth User state with new XP and Level!
+            if(setUser && data.newTotalXp !== null && data.newTotalXp !== undefined) {
+                setUser(prevUser => ({
+                    ...prevUser,
+                    xp: data.newTotalXp,
+                    level: data.newLevel
+                }));
+            }
+        } else if (data && data._id) {
+            // Fallback for older API format if not updated
+            setHabits((prev) =>
+              prev.map((habit) =>
+                habit._id === id ? data : habit
+              )
+            );
         }
-    } else {
-        // Fallback for older API format if not updated
-        setHabits((prev) =>
-          prev.map((habit) =>
-            habit._id === id ? data : habit
-          )
-        );
+    } catch (e) {
+        console.error("Failed to toggle habit", e);
     }
   };
 
   // ✅ TODAY LOGIC (DATE-BASED, CORRECT)
   const completedTodayCount = habits.filter(
-    (habit) => habit.completedDates?.includes(today)
+    (habit) => habit && habit.completedDates?.includes(today)
   ).length;
 
-  const totalTodayHabits = habits.length;
+  const totalTodayHabits = habits.length || 0;
 
   return (
     <HabitContext.Provider

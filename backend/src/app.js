@@ -13,13 +13,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
-app.use(errorHandler);
 
 // routes
 app.use("/api/chat", chatRoutes);
 app.use("/api/habits", habitRoutes); 
 app.use("/api/auth" , authRoutes);
-app.use("/api/reflection", reflectionRoutes);
+app.use("/api/reflections", reflectionRoutes);
+
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("AI mentor backend is running");

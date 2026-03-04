@@ -1,10 +1,10 @@
 import { GEMINI_CONFIG } from "../config/gemini.js";
 import { mentorPrompt } from "../prompts/mentor.prompt.js";
 
-export const getMentorResponse = async ({ message  , userRawPrompt = false}) => {
+export const getMentorResponse = async ({ message, personality, userRawPrompt = false}) => {
   try {
     const url = `${GEMINI_CONFIG.baseUrl}/${GEMINI_CONFIG.model}:generateContent?key=${GEMINI_CONFIG.apiKey}`;
-    const promptText = userRawPrompt ? message : mentorPrompt({ message });
+    const promptText = userRawPrompt ? message : mentorPrompt({ message, personality });
 
     const response = await fetch(url, {
       method: "POST",

@@ -1,10 +1,8 @@
-import AppLayout from "../layout/AppLayout"
 import ProgressCard from "../components/dashboard/ProgressCard"
 import UserInfoCard from "../components/dashboard/UserInfoCard"
 import HabitSummary from "../components/dashboard/HabitSummary"
 import LevelProgressCard from "../components/dashboard/LevelProgressCard"
 import { useProgress } from "../context/ProgressContext"
-import { useEffect } from "react"
 
 export default function DashBoard() {
 
@@ -15,8 +13,8 @@ export default function DashBoard() {
   // }, [])
  
   return (
-    <div className="max-w-5xl mx-auto w-full space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="max-w-6xl mx-auto w-full space-y-4 sm:space-y-6 pb-4 sm:pb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <div className="md:col-span-2">
             <UserInfoCard/>
         </div>
@@ -24,7 +22,7 @@ export default function DashBoard() {
             <LevelProgressCard />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <ProgressCard/>
         <HabitSummary />
       </div>

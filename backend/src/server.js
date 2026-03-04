@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import habitRouter from "./routes/habit.routes.js"
-// import Habit from "./models/Habit.modle.js"
+// import Habit from "./models/Habit.model.js"
 // Load environment variables immediately before importing application code
 dotenv.config({ path: "./.env" }); // 👈 FORCE path
 

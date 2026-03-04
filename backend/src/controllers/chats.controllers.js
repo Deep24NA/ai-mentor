@@ -5,6 +5,9 @@ export const chatWithMentor = async (req, res) => {
   try {
     const {
       message,
+      mode,
+      category,
+      personality,
       streak,
       messagesToday,
       completedTodayCount,
@@ -28,17 +31,20 @@ export const chatWithMentor = async (req, res) => {
     )
     .join("\n\n");
 
+    const contextPrefix = mode === "reflection" ? `[REFLECTION MODE] ` : `[CHAT - ${category || 'General'}] `;
+
     const fullPrompt = `
     Previous Converstion:
     ${conversationHistory}
 
     Current Message:
-    User: ${message}
+    User: ${contextPrefix}${message}
     `;
 
     // get AI reply
     const reply = await getMentorResponse({
       message: fullPrompt,
+      personality,
       streak,
       messagesToday,
       completedTodayCount,

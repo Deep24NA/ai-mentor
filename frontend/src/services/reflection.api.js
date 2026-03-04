@@ -35,3 +35,14 @@ export const fetchWeeklySummary = async () => {
 
     return res.json();
 };
+
+export const fetchMemoryInsights = async () => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${BASE_URL}/memory-insights`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    return res.json();
+};

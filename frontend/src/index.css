@@ -36,8 +36,35 @@
   100% { transform: translateX(100%); }
 }
 
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes pulse-glow-kf {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.5), 0 0 80px rgba(139, 92, 246, 0.15); }
+}
+
 @layer utilities {
   .animate-\\[shimmer_2s_infinite\\] {
     animation: shimmer 2s infinite;
+  }
+
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 10s ease-in-out 2s infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 12s ease-in-out 4s infinite;
+  }
+
+  .pulse-glow {
+    animation: pulse-glow-kf 3s ease-in-out infinite;
   }
 }
