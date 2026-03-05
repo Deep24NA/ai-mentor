@@ -13,6 +13,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Settings from "./pages/Settings";
 
 export default function App() {
   return (
@@ -35,8 +36,8 @@ export default function App() {
                 <Route path="/memory" element={<MemoryVisualizer />} />
                 <Route path="/weekly-report" element={<WeeklyIntelligence />} />
                 
-                {/* Dummy links based on sidebar layout */}
-                <Route path="/settings" element={<div className="text-white p-4">Settings Page Building...</div>} />
+                {/* Apps Settings Link */}
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>
           </ProgressProvider>

@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Sparkles,
@@ -15,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import dashboardPreview from "../assets/images/Dashboard.png";
 
 /* ──────────────────── Animation Helpers ──────────────────── */
 const fadeUp = {
@@ -39,6 +41,57 @@ const scaleIn = {
     transition: { duration: 0.5, ease: "easeOut" },
   },
 };
+
+const features = [
+  {
+    icon: <Brain size={20} />,
+    title: "AI Performance Insights",
+    desc: "Get smart feedback on your daily productivity and learning habits.",
+  },
+  {
+    icon: <Flame size={20} />,
+    title: "Streak Tracking",
+    desc: "Build momentum with daily streaks and habit consistency tracking.",
+  },
+  {
+    icon: <BarChart3 size={20} />,
+    title: "Weekly Analytics",
+    desc: "Understand your performance with clean visual progress reports.",
+  },
+  {
+    icon: <Target size={20} />,
+    title: "Goal Focus",
+    desc: "Stay aligned with your personal goals using AI-powered guidance.",
+  },
+];
+
+const faqs = [
+  {
+    question: "What is AI Mentor?",
+    answer:
+      "AI Mentor is a personal growth assistant that tracks your progress, analyzes your habits, and gives AI-powered feedback to help you improve every day.",
+  },
+  {
+    question: "Who is AI Mentor for?",
+    answer:
+      "AI Mentor is designed for students, developers, professionals, and anyone who wants to improve their productivity and consistency.",
+  },
+  {
+    question: "How does the AI feedback work?",
+    answer:
+      "Your activity and progress data are analyzed by AI to generate personalized insights, performance summaries, and improvement suggestions.",
+  },
+  {
+    question: "Do I need to track my progress daily?",
+    answer:
+      "Daily tracking helps AI Mentor provide better insights, but the platform is flexible and adapts to your schedule.",
+  },
+  {
+    question: "Is AI Mentor free?",
+    answer:
+      "AI Mentor will have a free plan with core features and optional premium features for advanced analytics and deeper insights.",
+  },
+];
 
 /* ──────────────────── Section Wrapper ──────────────────── */
 function Section({ children, className = "", id }) {
@@ -118,6 +171,10 @@ function AudienceCard({ icon: Icon, text, index }) {
    ════════════════════════════════════════════════════════════ */
 export default function LandingPage() {
   const { user } = useAuth();
+  const [activeIndex, setActiveIndex] = useState(null);
+  const toggleFAQ = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-gray-100 font-sans overflow-x-hidden">
@@ -257,6 +314,26 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
+      {/* Stats section */}
+      {/* <Section className="py-12">
+      <div className="grid grid-cols-3 text-center gap-6">
+        <div>
+          <h3 className="text-3xl font-bold text-white">10K+</h3>
+          <p className="text-gray-400 text-sm">Reflections Logged</p>
+        </div>
+
+        <div>
+          <h3 className="text-3xl font-bold text-white">1200+</h3>
+          <p className="text-gray-400 text-sm">Weekly Reports Generated</p>
+        </div>
+
+        <div>
+          <h3 className="text-3xl font-bold text-white">95%</h3>
+          <p className="text-gray-400 text-sm">Users Improve Consistency</p>
+        </div>
+      </div>
+    </Section> */}
+
       {/* ──────────────────────────────────────────────────────
           2️⃣ PROBLEM SECTION
          ────────────────────────────────────────────────────── */}
@@ -272,8 +349,7 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-4xl md:text-5xl font-bold mb-16"
           >
-            Most AI Tools{" "}
-            <span className="text-gray-500">Forget You.</span>
+            Most AI Tools <span className="text-gray-500">Forget You.</span>
           </motion.h2>
 
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start max-w-4xl mx-auto">
@@ -290,7 +366,11 @@ export default function LandingPage() {
                 >
                   Nothing is remembered.
                 </motion.p>
-                <motion.div variants={fadeUp} custom={3} className="pt-4 space-y-2">
+                <motion.div
+                  variants={fadeUp}
+                  custom={3}
+                  className="pt-4 space-y-2"
+                >
                   <p className="text-gray-600">No growth.</p>
                   <p className="text-gray-600">No insight.</p>
                   <p className="text-gray-700">No evolution.</p>
@@ -310,8 +390,7 @@ export default function LandingPage() {
                     <span className="text-gradient">Tracks</span> patterns.
                   </p>
                   <p className="text-white">
-                    Gives{" "}
-                    <span className="text-gradient">clarity.</span>
+                    Gives <span className="text-gradient">clarity.</span>
                   </p>
                 </div>
               </div>
@@ -335,8 +414,7 @@ export default function LandingPage() {
               What makes us different
             </p>
             <h2 className="text-4xl md:text-5xl font-bold">
-              How AI Mentor Is{" "}
-              <span className="text-gradient">Different</span>
+              How AI Mentor Is <span className="text-gradient">Different</span>
             </h2>
           </motion.div>
 
@@ -375,6 +453,62 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
       </Section>
+      {/* ──────────────────────────────────────────────────────
+          4️⃣ Product view
+         ────────────────────────────────────────────────────── */}
+      <section className="py-24 bg-gray-950 text-white">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Heading */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">See AI Mentor In Action</h2>
+
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Track your growth, receive AI-powered insights, and stay
+              consistent with a dashboard designed for continuous improvement.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            {/* Dashboard Image */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <img
+                src={dashboardPreview}
+                alt="AI Mentor Dashboard"
+                className="rounded-xl shadow-2xl border border-gray-800 hover:scale-[1.02] transition"
+              />
+            </motion.div>
+
+            {/* Features */}
+            <div className="space-y-6">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className="flex gap-4 items-start"
+                  initial={{ opacity: 0, x: 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="bg-indigo-500/10 p-3 rounded-lg text-indigo-400">
+                    {feature.icon}
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-lg">{feature.title}</h3>
+
+                    <p className="text-gray-400 text-sm">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ──────────────────────────────────────────────────────
           4️⃣ HOW IT WORKS
@@ -388,8 +522,7 @@ export default function LandingPage() {
         >
           <motion.div variants={fadeUp} className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Simple. <span className="text-gradient">Powerful.</span>{" "}
-              Personal.
+              Simple. <span className="text-gradient">Powerful.</span> Personal.
             </h2>
           </motion.div>
 
@@ -436,8 +569,7 @@ export default function LandingPage() {
         >
           <motion.div variants={fadeUp} className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Who Is AI Mentor{" "}
-              <span className="text-gradient">For?</span>
+              Who Is AI Mentor <span className="text-gradient">For?</span>
             </h2>
           </motion.div>
 
@@ -505,6 +637,64 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
       </Section>
+
+      {/* ──────────────────────────────────────────────────────
+          Faq
+         ────────────────────────────────────────────────────── */}
+
+      <section className="py-24 bg-gray-950 text-white">
+        <div className="max-w-4xl mx-auto px-6">
+          {/* Heading */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Frequently Asked Questions
+            </h2>
+
+            <p className="text-gray-400">
+              Everything you need to know about AI Mentor.
+            </p>
+          </div>
+
+          {/* FAQ Items */}
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="border border-gray-800 rounded-lg overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="w-full flex justify-between items-center p-5 text-left"
+                >
+                  <span className="font-medium">{faq.question}</span>
+
+                  <ChevronDown
+                    className={`transition-transform ${
+                      activeIndex === index ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {activeIndex === index && (
+                    <motion.div
+                      key="content"
+                      initial={{ opacity: 0, scaleY: 0 }}
+                      animate={{ opacity: 1, scaleY: 1 }}
+                      exit={{ opacity: 0, scaleY: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      style={{ originY: 0 }}
+                      className="px-5 pb-5 text-gray-400"
+                    >
+                      {faq.answer}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ──────────────────────────────────────────────────────
           7️⃣ FINAL CTA
